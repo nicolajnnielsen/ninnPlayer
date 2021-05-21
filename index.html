@@ -8,16 +8,12 @@
 </head>
 <body>
     <h1>nPlayer Demo</h1>
-    <div role="nPlayer">
-        <audio controls>
-            <source src="audio/01. Warning!.mp3" type="audio/mpeg">
-            <source src="audio/04. Manners.mp3" type="audio/mpeg">
-        </audio>
-    </div>
-    <div role="nPlayer">
-        <audio controls>
-            <source src="audio/04. Manners.mp3" type="audio/mpeg">
-        </audio>
+    <div role="ninnPlayer">
+        <audio controls src="audio/01. Warning!.mp3"></audio>
+        <ul role="playlist">
+            <li class="ninnCurrent" data-src="./audio/01. Warning!.mp3">Warning</li>
+            <li data-src="./audio/04. Manners.mp3">Manners</li>
+        </ul>
     </div>
     <script type="module" src="js/main.js"></script>
 </body>
