@@ -1,14 +1,44 @@
 function ninnPlayer(container, player, playlistEl, playlist) {
     console.log(playlist);
+    if (!player.src) {
+        if (playlist.length === 0) {
+            console.error('No available sources provided to the player, please either add a src to the <audio> element or to a playlist as described in the documentation');
+            throw new Error('No playable sources provided');
+        } else {
+            player.src = playlist[0].src;
+        }
+    }
+
+    // Creating controls 
+    const timeline = document.createElement('div');
     const controls = document.createElement('div');
-    addPlayBtn(controls, player);
-    addVolumeControl(controls, player);
-    addProgressbar(controls, player);
-    addSkipBtns(container, player);
-    addTrackChangeBtns(container, player, playlistEl, playlist);
-    addPlaybackRate(controls, player);
+    timeline.classList.add('nTimeline');
+    controls.classList.add('nControls');
+
+    const playBtn = document.createElement('button');
+    const restart = document.createElement('button');
+    const fastForward = document.createElement('button');
+    const rewind = document.createElement('button');
+    const nextTrack = document.createElement('button');
+    const prevTrack = document.createElement('button');
+    const muteBtn = document.createElement('button');
+    const volume = document.createElement('input');
+    const progress = document.createElement('progress');
+    const rateSelect = document.createElement('select');
+
+    // Adding events to controls
+    addPlayBtn(playBtn, player);
+    addVolumeControl(volume, muteBtn, player);
+    addProgressbar(progress, player);
+    addSkipBtns(restart, fastForward, rewind, player);
+    addTrackChangeBtns(nextTrack, prevTrack, player, playlistEl, playlist);
+    addPlaybackRate(rateSelect, player);
     addPlaylistEvent(player, playlistEl, playlist);
-    container.append(controls);
+
+    // Adding controls to markup
+    timeline.append(restart, progress, muteBtn, volume);
+    controls.append(prevTrack, rewind, playBtn, fastForward, nextTrack);
+    container.append(timeline, controls);
 }
 
 const addPlaylistEvent = (player, playlistEl, playlist) => {
@@ -20,39 +50,43 @@ const addPlaylistEvent = (player, playlistEl, playlist) => {
             player.currentTime = 0;
             player.src = playlist[i].src;
             player.play();
-
         })
     });
 }
 
-const addPlayBtn = (controls, player) => {
-    const playBtn = document.createElement('button');
-    playBtn.innerHTML = 'Play'
-    playBtn.classList.add('btnPlay');
-    playBtn.setAttribute('id', 'nPlay');
-    playBtn.addEventListener('click', () => {
+const addPlayBtn = (btn, player) => {
+    const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-play"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+    const pauseIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-pause"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+    btn.innerHTML = playIcon;
+    btn.classList.add('nBtn', 'nPlay');
+    btn.setAttribute('id', 'nPlay');
+    btn.addEventListener('click', () => {
         if (player.paused) {
             player.play();
-            playBtn.innerHTML = 'Pause';
+            btn.innerHTML = pauseIcon;
         } else {
             player.pause();
-            playBtn.innerHTML = 'Play';
+            btn.innerHTML = playIcon;
         }
     });
-    controls.append(playBtn);
+    // controls.append(playBtn);
 }
 
-const addSkipBtns = (controls, player) => {
-    const restart = document.createElement('button');
-    const skipforward = document.createElement('button');
-    const skipBack = document.createElement('button');
-    restart.innerHTML = 'Restart';
+const addSkipBtns = (restart, skipforward, skipBack, player) => {
+    const restartIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rotate-ccw"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>';
+    const fwdIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-fast-forward"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>';
+    const rwdIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rewind"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>';
+    
+    restart.innerHTML = restartIcon;
+    restart.classList.add('nBtn', 'nRestart');
     restart.addEventListener('click', () => {
         player.currentTime = 0;
     });
 
-    skipforward.innerHTML = 'fwd';
-    skipBack.innerHTML = 'rwd';
+    skipforward.innerHTML = fwdIcon;
+    skipforward.classList.add('nBtn', 'nSkip', 'nFfwd');
+    skipBack.innerHTML = rwdIcon;
+    skipBack.classList.add('nBtn', 'nSkip', 'nRwd');
     skipforward.addEventListener('click', () => {
         player.currentTime = player.currentTime + 10;
     });
@@ -60,12 +94,14 @@ const addSkipBtns = (controls, player) => {
         player.currentTime = player.currentTime - 10;
     });
 
-    controls.append(restart, skipforward, skipBack);
+    // controls.append(restart, skipBack, skipforward);
 }
 
-const addTrackChangeBtns = (controls, player, playlistEl, playlist) => {
-    const nextTrack = document.createElement('button');
-    nextTrack.innerHTML = 'Next';
+const addTrackChangeBtns = (nextTrack, prevTrack, player, playlistEl, playlist) => {
+    const nxtIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-skip-forward"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>';
+
+    nextTrack.innerHTML = nxtIcon;
+    nextTrack.classList.add('nBtn', 'nCngTrack', 'nNext');
     nextTrack.addEventListener('click', () => {
         const currentSrc = playlistEl.querySelector('.ninnCurrent');
         const currentIndex = playlist.findIndex((element) => element.title == currentSrc.innerText);
@@ -84,8 +120,9 @@ const addTrackChangeBtns = (controls, player, playlistEl, playlist) => {
         }
     });
 
-    const prevTrack = document.createElement('button');
-    prevTrack.innerHTML = 'Prev';
+    const prevIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-skip-back"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>';
+    prevTrack.innerHTML = prevIcon;
+    prevTrack.classList.add('nBtn', 'nCngTrack', 'nPrev');
     prevTrack.addEventListener('click', () => {
         const currentSrc = playlistEl.querySelector('.ninnCurrent');
         const currentIndex = playlist.findIndex((element) => element.title == currentSrc.innerText);
@@ -104,40 +141,52 @@ const addTrackChangeBtns = (controls, player, playlistEl, playlist) => {
             playlistEl.children[playlistLenght - 1].classList.add('ninnCurrent');
         }
     });
-
-    controls.append(prevTrack, nextTrack);
 }
 
-const addVolumeControl = (controls, player) => {
+const addVolumeControl = (vol, muteBtn, player) => {
+    const muteIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-x"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
+    const lowIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+    const highIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+
     let preMuteVolume = player.volume;
-    const vol = document.createElement('input');
     vol.type = 'range';
+    vol.classList.add('nVol');
     vol.attributes.min = 0;
     vol.attributes.max = 100;
     vol.addEventListener('input', (e) => {
         const volume = e.target.value / 100;
         player.volume = volume;
         preMuteVolume = volume;
-    });
 
-    const mute = document.createElement('button');
-    mute.innerHTML = 'Mute';
-    mute.addEventListener('click', () => {
-        if (player.volume === 0) {
-            player.volume = preMuteVolume;
-            vol.value = preMuteVolume * 100;
+        if (volume === 0) {
+            muteBtn.innerHTML = muteIcon;
+        } else if (volume < 0.5) {
+            muteBtn.innerHTML = lowIcon;
         } else {
-            player.volume = 0;
-            vol.value = 0;
-
+            muteBtn.innerHTML = highIcon;
         }
     });
 
-    controls.append(mute, vol);
+    muteBtn.innerHTML = highIcon;
+    muteBtn.classList.add('nBtn', 'nMute');
+    muteBtn.addEventListener('click', () => {
+        if (player.volume === 0) {
+            player.volume = preMuteVolume;
+            vol.value = preMuteVolume * 100;
+            if (preMuteVolume !== 0) {
+                muteBtn.innerHTML = preMuteVolume > 50 ? highIcon : lowIcon;
+            }
+        } else {
+            player.volume = 0;
+            vol.value = 0;
+            muteBtn.innerHTML = muteIcon;
+
+        }
+    });
 }
 
-const addProgressbar = (controls, player) => {
-    const progress = document.createElement('progress');
+const addProgressbar = (progress, player) => {
+    progress.classList.add('nProgress');
     progress.max = 100;
     progress.value = player.currentTime;
     player.addEventListener('timeupdate', () => {
@@ -151,11 +200,9 @@ const addProgressbar = (controls, player) => {
     // progress.addEventListener('mousemove', () => {
     //     console.log('hovering');
     // });
-    controls.append(progress);
 }
 
-const addPlaybackRate = (controls, player) => {
-    const rateSelect = document.createElement('select');
+const addPlaybackRate = (rateSelect, player) => {
     const rates = [0.5, 0.6, 0.75, 0.9, 1, 1.1, 1.25, 1.4, 1.5, 1.75, 2];
 
     for (let i = 0; i < rates.length; i++) {
@@ -171,8 +218,6 @@ const addPlaybackRate = (controls, player) => {
     rateSelect.addEventListener('change', (e) => {
         player.playbackRate = e.target.value;
     })
-
-    controls.append(rateSelect);
 }
 
 export default ninnPlayer;

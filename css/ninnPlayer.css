@@ -1,0 +1,119 @@
+.ninnPlayer * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.ninnPlayer audio {
+    display: none;
+}
+
+.nTimeline {
+    display: flex;
+    align-items: center;
+}
+
+.nControls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nBtn {
+    background: none;
+    appearance: none;
+    border: none;
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 50px;
+    width: 50px;
+    padding: 8px;
+    border-radius: 50%;
+    background-color: red;
+    border: 2px dotted black;
+}
+
+.nPlay {
+    width: 100px;
+    height: 100px;
+}
+
+.nPlay > svg {
+    width: 90px;
+    height: 90px;
+    z-index: 20;
+}
+
+.nSkip {
+    --size: 60px;
+    height: var(--size);
+    width: var(--size);
+    position: relative;
+    z-index: 30;
+}
+
+.nFfwd {
+    transform: translate(-35%, -15%);
+}
+
+.nRwd {
+    transform: translate(35%, -15%);
+}
+
+.nCngTrack {
+    position: relative;
+    z-index: 40;
+}
+
+.nNext {
+    transform: translate(-75%, -55%);
+}
+
+.nPrev {
+    transform: translate(75%, -55%);
+}
+
+.nProgress {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+    background-color: green;
+    height: 30px;
+    flex: 1 0 300px;
+    border-radius: 10px;
+}
+
+.nProgress::-webkit-progress-bar {
+    background-color: aqua;
+    border-radius: 10px;
+}
+
+.nProgress::-webkit-progress-value {
+    background: yellow;
+    border-radius: 10px;
+}
+
+.nProgress::-moz-progress-bar {
+    background: red;
+    border-radius: 10px;
+}
+
+.nVol {
+    -webkit-appearance: none;
+    /* width: 100px; */
+    background-color: transparent;
+}
+
+.nVol::-webkit-slider-thumb {
+    -webkit-appearance: none;
+
+    border: 2px dotted black
+}
+
+.nVol::-moz-range-thumb {
+    border: 2px dotted black
+}
