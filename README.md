@@ -4,6 +4,7 @@ Custom controls for the &lt;audio> element.
 
 ## TODO
 - Styling
-- Icons
-- Tooltip with timestamp when hovering progress
+- Playlist interactions
+- Current time and full duration text
 - Screen reader elements
+- Keyboard controls

@@ -23,20 +23,22 @@ function ninnPlayer(container, player, playlistEl, playlist) {
     const prevTrack = document.createElement('button');
     const muteBtn = document.createElement('button');
     const volume = document.createElement('input');
+    const progressWrap = document.createElement('div');
     const progress = document.createElement('progress');
     const rateSelect = document.createElement('select');
 
     // Adding events to controls
     addPlayBtn(playBtn, player);
     addVolumeControl(volume, muteBtn, player);
-    addProgressbar(progress, player);
+    addProgressbar(progress, progressWrap, player);
     addSkipBtns(restart, fastForward, rewind, player);
     addTrackChangeBtns(nextTrack, prevTrack, player, playlistEl, playlist);
     addPlaybackRate(rateSelect, player);
     addPlaylistEvent(player, playlistEl, playlist);
 
     // Adding controls to markup
-    timeline.append(restart, progress, muteBtn, volume);
+    progressWrap.appendChild(progress);
+    timeline.append(restart, progressWrap, muteBtn, volume);
     controls.append(prevTrack, rewind, playBtn, fastForward, nextTrack);
     container.append(timeline, controls);
 }
@@ -63,13 +65,18 @@ const addPlayBtn = (btn, player) => {
     btn.addEventListener('click', () => {
         if (player.paused) {
             player.play();
-            btn.innerHTML = pauseIcon;
         } else {
             player.pause();
-            btn.innerHTML = playIcon;
         }
     });
-    // controls.append(playBtn);
+    
+    player.addEventListener('play', () => {
+        btn.innerHTML = pauseIcon;
+    });
+
+    player.addEventListener('pause', () => {
+        btn.innerHTML = playIcon;
+    });
 }
 
 const addSkipBtns = (restart, skipforward, skipBack, player) => {
@@ -93,8 +100,6 @@ const addSkipBtns = (restart, skipforward, skipBack, player) => {
     skipBack.addEventListener('click', () => {
         player.currentTime = player.currentTime - 10;
     });
-
-    // controls.append(restart, skipBack, skipforward);
 }
 
 const addTrackChangeBtns = (nextTrack, prevTrack, player, playlistEl, playlist) => {
@@ -185,7 +190,9 @@ const addVolumeControl = (vol, muteBtn, player) => {
     });
 }
 
-const addProgressbar = (progress, player) => {
+const addProgressbar = (progress, progressWrap, player) => {
+    progressWrap.classList.add('nProgressWrapper');
+
     progress.classList.add('nProgress');
     progress.max = 100;
     progress.value = player.currentTime;
@@ -194,12 +201,21 @@ const addProgressbar = (progress, player) => {
         progress.value = percent;
     });
     progress.addEventListener('click', (e) => {
-        const skipToPercent = (e.pageX - progress.offsetLeft) / progress.offsetWidth;
+        const skipToPercent = (e.pageX - progressWrap.offsetLeft) / progressWrap.offsetWidth;
         player.currentTime = skipToPercent * player.duration;
     });
-    // progress.addEventListener('mousemove', () => {
-    //     console.log('hovering');
-    // });
+
+    const formatTime = (time) => (time.toString().padStart(2, '0'));
+
+    progressWrap.addEventListener('mousemove', (e) => {
+        progressWrap.style.setProperty('--posLeft', `${e.offsetX}px`);
+        const skipToPercent = (e.pageX - progressWrap.offsetLeft) / progressWrap.offsetWidth;
+        const time = skipToPercent * player.duration;
+        const hours = Math.floor(time / 3600);
+        const minutes = Math.floor((time % 3600) / 60);
+        const seconds = Math.floor(time % 60);
+        progressWrap.dataset.time = `${hours >= 1 ? formatTime(hours) + ':' : ''}${formatTime(minutes)}:${formatTime(seconds.toFixed(0))}`;
+    });
 }
 
 const addPlaybackRate = (rateSelect, player) => {

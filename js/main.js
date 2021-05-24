@@ -4,11 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const players = document.querySelectorAll('[role=ninnPlayer]');
     players.forEach(player => {
         player.classList.add('ninnPlayer');
-        const playerEl = player.querySelector('audio');
-        // if (playerEl.controls) playerEl.controls = false;
+        const playerEl = document.createElement('audio');
         playerEl.volume = 0.5;
+        player.prepend(playerEl);
+        // if (playerEl.controls) playerEl.controls = false;
 
         const playlistEl = player.querySelector('[role=playlist');
+        playlistEl.classList.add('ninnPlaylist');
+        playlistEl.querySelector('li').classList.add('ninnCurrent');
         const playlistAr = (playlistEl ? [...playlistEl.children] : []);
         const playlist = playlistAr.map(audio => (
             {
